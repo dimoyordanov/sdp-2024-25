@@ -33,6 +33,9 @@ double RPNCalculator::calculateRPN(std::string const& rpn) {
 }
 
 std::string RPNCalculator::convertToRPN(std::string const& expr) {
+    if(!this->validateBraces(expr)){
+        throw std::invalid_argument("Невалидна формулировка на израза.");
+    }
     std::string rpn;
     for(char c : expr)
         if (std::isdigit(c))
@@ -72,4 +75,42 @@ int RPNCalculator::priority(char op) {
 
         default: throw std::invalid_argument("Невалидна операция");
     }  
+}
+
+bool RPNCalculator::isSymbol(char op){
+    switch (op)
+    {
+    case '*':
+    case '-':
+    case '+':
+    case '/':
+    case '^':
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool RPNCalculator::validateBraces(std::string const& rpn){
+    for(char i: rpn){
+        if('(' == i){
+            this->braces.push('(');
+        }else if(')' == i){
+            if(this->braces.empty()){
+                return false;
+            }else{
+                this->braces.pop();
+            }
+        }
+    }
+    for (size_t i = 0; i < rpn.length()-1; i++)
+    {
+        if(isdigit(rpn[i]) && isdigit(rpn[i+1])){
+            return false;
+        }else if(isSymbol(rpn[i]) && isSymbol(rpn[i+1])){
+            return false;
+        }
+    }
+    
+    return this->braces.empty();
 }
